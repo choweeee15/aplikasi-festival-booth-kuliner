@@ -1,0 +1,75 @@
+@extends('layouts.app')
+@section('title','Kelola Penyewa Booth')
+@section('dashboard-css')
+<style>@import url(); .dashboard-container{padding:30px;background:linear-gradient(135deg,#4e0000,#800000);min-height:100vh;color:#f8f8f8}
+.title-heading{font-size:2rem;font-weight:700;color:#f8f8f8}.card-dark{background:#5a0000;border-radius:12px;border:none;color:#fff;box-shadow:0 8px 20px rgb(255 0 0 / .2)}
+.table{background:#fff;color:#000;border-radius:8px;overflow:hidden;box-shadow:0 8px 20px rgb(255 0 0 / .2)}.table thead th{background:linear-gradient(45deg,#7b0000,#b30000);color:#fff;border:none}
+.btn-success{background:linear-gradient(45deg,#218838,#28a745);border:none}.btn-warning{background:#ffc107;border:none;color:#212529}.btn-danger{background:#dc3545;border:none}
+</style>
+@endsection
+@section('content')
+<div class="dashboard-container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="title-heading"><i class="fas fa-user-tie me-2"></i> Kelola Penyewa Booth</h2>
+    <button class="btn btn-success btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#addModal"><i class="fas fa-plus me-1"></i> Tambah Penyewa</button>
+  </div>
+
+  @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+  @if($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
+
+  <div class="card card-dark"><div class="card-body p-3">
+    <div class="table-responsive">
+      <table class="table table-hover table-striped text-center align-middle">
+        <thead><tr><th>No</th><th>Nama</th><th>Email</th><th>No HP</th><th>Aksi</th></tr></thead>
+        <tbody>
+          @forelse($penyewas as $penyewa)
+          <tr>
+            <td>{{ $loop->iteration }}</td><td>{{ $penyewa->nama }}</td><td>{{ $penyewa->email }}</td><td>{{ $penyewa->no_hp }}</td>
+            <td>
+              <button class="btn btn-sm btn-warning me-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ $penyewa->id }}"><i class="fas fa-edit"></i></button>
+              <form action="{{ route('penyewas.destroy',$penyewa->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?')">
+                @csrf @method('DELETE') <button class="btn btn-sm btn-danger shadow-sm"><i class="fas fa-trash-alt"></i></button>
+              </form>
+            </td>
+          </tr>
+          @empty
+          <tr><td colspan="5" class="text-center text-muted">Belum ada data.</td></tr>
+          @endforelse
+        </tbody>
+      </table>
+    </div>
+  </div></div>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog">
+  <form action="{{ route('penyewas.store') }}" method="POST">@csrf
+  <div class="modal-content bg-dark text-white">
+    <div class="modal-header"><h5 class="modal-title">Tambah Penyewa</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <div class="mb-3"><label>Nama</label><input type="text" name="nama" class="form-control" required></div>
+      <div class="mb-3"><label>Email</label><input type="email" name="email" class="form-control" required></div>
+      <div class="mb-3"><label>Password</label><input type="password" name="password" class="form-control" required></div>
+      <div class="mb-3"><label>No HP</label><input type="text" name="no_hp" class="form-control"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-success">Simpan</button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button></div>
+  </div>
+  </form>
+</div></div>
+
+@foreach($penyewas as $penyewa)
+<div class="modal fade" id="editModal{{ $penyewa->id }}" tabindex="-1" aria-hidden="true"><div class="modal-dialog">
+  <form action="{{ route('penyewas.update',$penyewa->id) }}" method="POST">@csrf @method('PUT')
+  <div class="modal-content bg-dark text-white">
+    <div class="modal-header"><h5 class="modal-title">Edit Penyewa</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <div class="mb-3"><label>Nama</label><input type="text" name="nama" class="form-control" value="{{ $penyewa->nama }}" required></div>
+      <div class="mb-3"><label>Email</label><input type="email" name="email" class="form-control" value="{{ $penyewa->email }}" required></div>
+      <div class="mb-3"><label>Password (opsional)</label><input type="password" name="password" class="form-control" placeholder="Biarkan kosong jika tidak ganti"></div>
+      <div class="mb-3"><label>No HP</label><input type="text" name="no_hp" class="form-control" value="{{ $penyewa->no_hp }}"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-success">Simpan</button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button></div>
+  </div>
+  </form>
+</div></div>
+@endforeach
+@endsection
